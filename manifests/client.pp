@@ -1,5 +1,6 @@
 class nis::client inherits nis {
-    service { "ypbind":
+    include nis::params
+    service { $::nis::params::nis_service:
               ensure => running,
               enable => true,
               hasrestart => true,
