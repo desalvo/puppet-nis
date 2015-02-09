@@ -3,6 +3,7 @@ class nis::params {
     'Debian': {
       $nis_package = 'nis'
       $nis_service = 'nis'
+      $nis_pattern = '/usr/sbin/ypbind'
     }
     'RedHat': {
       $nis_package = 'ypbind'
