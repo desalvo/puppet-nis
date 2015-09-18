@@ -68,8 +68,9 @@ class nis (
    $securenets = undef,
    $hostallow  = undef,
 ) {
+   include nis::params
 
-   package { "ypbind": ensure => latest }
+   package { $::nis::params::nis_package: ensure => latest }
 
    if ($ypserv and is_array($ypserv)) {
        $yps = $ypserv
@@ -83,7 +84,7 @@ class nis (
       group   => "root",
       mode    => '0644',
       content => template("nis/yp.conf.erb"),
-      require => Package["ypbind"]
+      require => Package[$::nis::params::nis_package]
    }
 
    file { "/etc/nsswitch.conf":
@@ -94,12 +95,21 @@ class nis (
       source  => "puppet:///modules/nis/nsswitch.conf",
    }
 
-   augeas{ "nis domain network" :
-       context => "/files/etc/sysconfig/network",
-       changes => [
+   case $::osfamily {
+     'Debian': {
+       file { '/etc/defaultdomain':
+         content => "$ypdomain\n",
+       }
+     }
+     'RedHat': {
+       augeas{ "nis domain network" :
+         context => "/files/etc/sysconfig/network",
+         changes => [
            "set NISDOMAIN ${ypdomain}",
            "set DOMAIN ${ypdomain}",
-       ],
+         ],
+       }
+     }
    }
 
    if (!$groups) {
