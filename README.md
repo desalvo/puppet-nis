@@ -58,6 +58,10 @@ Contributors
 Release Notes
 -------------
 
+**0.3.1**
+
+* Make ypmaster optional
+
 **0.3.0**
 
 * Add puppet 4 support

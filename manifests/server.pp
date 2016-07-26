@@ -16,7 +16,7 @@ define add_nis_host_allow($hn = $title, $process) {
 
 class nis::server (
       $ypdomain,
-      $ypmaster,
+      $ypmaster = undef,
       $master = true,
       $client = undef,
       $nicknames = undef,
@@ -111,12 +111,14 @@ class nis::server (
         require => Package[["ypserv","ypbind","yp-tools"]]
     }
 
-    exec { "yp-config":
-        command => "domainname $ypdomain && ypinit -s $ypmaster && authconfig --enablenis --enablekrb5 --kickstart",
-        path => [ '/bin', '/usr/bin', '/usr/lib64/yp', '/usr/lib/yp', '/usr/sbin' ],
-        unless => "test -d /var/yp/$ypdomain",
-        notify  => [Service["ypserv"],Service["ypbind"]],
-        require => Package[["ypserv","ypbind","yp-tools"]]
+    if ($ypmaster) {
+        exec { "yp-config":
+            command => "domainname $ypdomain && ypinit -s $ypmaster && authconfig --enablenis --enablekrb5 --kickstart",
+            path => [ '/bin', '/usr/bin', '/usr/lib64/yp', '/usr/lib/yp', '/usr/sbin' ],
+            unless => "test -d /var/yp/$ypdomain",
+            notify  => [Service["ypserv"],Service["ypbind"]],
+            require => Package[["ypserv","ypbind","yp-tools"]]
+        }
     }
 
     service { "ypserv":
